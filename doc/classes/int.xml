@@ -79,6 +79,14 @@
 			</description>
 		</constructor>
 	</constructors>
+	<constants>
+		<constant name="MAX" value="9223372036854775807">
+			Max signed 64 bit int value.
+		</constant>
+		<constant name="MIN" value="-9223372036854775808">
+			Min signed 64 bit int value.
+		</constant>
+	</constants>
 	<operators>
 		<operator name="operator !=">
 			<return type="bool" />

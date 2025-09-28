@@ -2667,6 +2667,9 @@ static void _register_variant_builtin_constants() {
 		_VariantCall::add_variant_constant(Variant::COLOR, Color::get_named_color_name(i), Color::get_named_color(i));
 	}
 
+	_VariantCall::add_variant_constant(Variant::INT, "MAX", INT64_MAX);
+	_VariantCall::add_variant_constant(Variant::INT, "MIN", INT64_MIN);
+
 	_VariantCall::add_constant(Variant::VECTOR3, "AXIS_X", Vector3::AXIS_X);
 	_VariantCall::add_constant(Variant::VECTOR3, "AXIS_Y", Vector3::AXIS_Y);
 	_VariantCall::add_constant(Variant::VECTOR3, "AXIS_Z", Vector3::AXIS_Z);
