@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="Omake" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		A singleton for holding the Omake functions.
+	</brief_description>
+	<description>
+		These are bonus functions that may be useful, but not necessarily as part of the core Blazium engine.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_cpu_ticks_nsec" qualifiers="static">
+			<return type="int" />
+			<description>
+				Returns the CPU ticks in nanoseconds.
+			</description>
+		</method>
+	</methods>
+</class>
