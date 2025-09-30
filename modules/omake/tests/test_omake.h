@@ -6,8 +6,6 @@
 /*                          https://blazium.app                           */
 /**************************************************************************/
 /* Copyright (c) 2024-present Blazium Engine contributors.                */
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -34,3 +32,18 @@
 #include "tests/test_macros.h"
 
 #include "modules/omake/omake.h"
+
+namespace TestOmakeMisc {
+
+TEST_CASE("[Omake] add_clampedi") {
+	CHECK(6 == Omake::add_clampedi(1, 5, 0, 100)); // Normal add
+	CHECK(-4 == Omake::add_clampedi(1, -5, -100, 100)); // Normal add
+	CHECK(0 == Omake::add_clampedi(6, -900, 0, 100)); // Clamp Underflow
+	CHECK(100 == Omake::add_clampedi(6, 900, 0, 100)); // Clamp Overflow
+
+	CHECK(INT64_MAX == Omake::add_clampedi(7, INT64_MAX)); // Clamp Overflow
+	CHECK(INT64_MIN == Omake::add_clampedi(-8, INT64_MIN)); // Clamp Underflow
+	CHECK(0 == Omake::add_clampedi(0, INT64_MIN, 0, INT64_MAX)); // Clamp Underflow
+}
+
+} //namespace TestOmakeMisc

@@ -42,4 +42,5 @@ public:
 	~Omake();
 
 	static uint64_t get_cpu_ticks_nsec();
+	static int64_t add_clampedi(int64_t a, int64_t b, int64_t min = INT64_MIN, int64_t max = INT64_MAX);
 };
