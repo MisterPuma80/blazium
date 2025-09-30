@@ -45,6 +45,21 @@ uint64_t Omake::get_cpu_ticks_nsec() {
 	return omake_get_cpu_ticks_nsec();
 }
 
+int64_t Omake::add_clampedi(int64_t a, int64_t b, int64_t min, int64_t max) {
+	// Will overflow so just return max
+	if (b > 0 && a > max - b) {
+		return max;
+	}
+
+	// Will underflow so just return min
+	if (b < 0 && a < min - b) {
+		return min;
+	}
+
+	return CLAMP(a + b, min, max);
+}
+
 void Omake::_bind_methods() {
 	ClassDB::bind_static_method("Omake", D_METHOD("get_cpu_ticks_nsec"), &Omake::get_cpu_ticks_nsec);
+	ClassDB::bind_static_method("Omake", D_METHOD("add_clampedi", "a", "b", "min", "max"), &Omake::add_clampedi, DEFVAL(INT64_MIN), DEFVAL(INT64_MAX));
 }
