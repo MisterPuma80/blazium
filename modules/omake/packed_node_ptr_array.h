@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  omake.h                                                               */
+/*  packed_node_ptr_array.h                                               */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                            BLAZIUM ENGINE                              */
@@ -30,27 +30,39 @@
 #pragma once
 
 #include "core/object/ref_counted.h"
-#include "packed_node_ptr_array.h"
+#include "core/variant/typed_array.h"
 
-class Omake : public RefCounted {
-	GDCLASS(Omake, RefCounted);
+#include "scene/main/node.h"
+
+class PackedNodePtrArray : public RefCounted {
+	GDCLASS(PackedNodePtrArray, RefCounted);
+
+private:
+	mutable LocalVector<Node *> nodes;
+	uint32_t current_index;
 
 protected:
 	static void _bind_methods();
 
 public:
-	Omake();
-	~Omake();
+	PackedNodePtrArray();
+	~PackedNodePtrArray();
 
-	static uint64_t get_cpu_ticks_nsec();
-	static int64_t add_clampedi(int64_t a, int64_t b, int64_t min = INT64_MIN, int64_t max = INT64_MAX);
+	LocalVector<Node *> *get_node_ptr();
+	void add_node(Node *p_node);
+	Node *get_node(int p_index) const;
+	void set(int p_index, Node *p_node);
+	int size() const;
+	void resize(int p_new_size);
+	void clear();
 
-	static Ref<PackedNodePtrArray> get_children(const Node *p_node, const bool p_include_internal = true);
+	Node *front() const;
+	Node *back() const;
+	Node *pick_random() const;
+	TypedArray<Node> to_array() const;
+	bool is_empty() const;
 
-	static Ref<PackedNodePtrArray> find_all(const Node *p_node);
-	static Ref<PackedNodePtrArray> find_by(const Node *p_node, const String &p_pattern, const String &p_type, const bool p_recursive = true, const bool p_owned = true);
-	static Ref<PackedNodePtrArray> find_by_name(const Node *p_node, const String &p_node_name);
-	static Ref<PackedNodePtrArray> find_by_type(const Node *p_node, const String &p_type_name);
-	static Ref<PackedNodePtrArray> find_by_group(const Node *p_node, const String &p_group_name);
-	static Ref<PackedNodePtrArray> find_by_groups(const Node *p_node, const TypedArray<String> &p_group_names);
+	bool _iter_init(const Variant &p_args);
+	bool _iter_next(const Variant &p_args);
+	Node *_iter_get(const Variant &p_args);
 };
