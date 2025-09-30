@@ -39,9 +39,8 @@
 class Node;
 
 class OmakeFind {
-
 private:
-    static Node *const *_get_children_ptr(const Node *p_node, int *p_count, bool p_include_internal = false);
+	static Node *const *_get_children_ptr(const Node *p_node, int *p_count, bool p_include_internal = false);
 
 public:
 	static Ref<PackedNodePtrArray> children(const Node *p_node, const bool p_include_internal = true);
