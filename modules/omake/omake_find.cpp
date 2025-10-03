@@ -186,3 +186,20 @@ Ref<PackedNodePtrArray> OmakeFind::by(const Node *p_node, const String &p_patter
 
 	return matches;
 }
+
+PackedStringArray OmakeFind::get_groups(const Node *p_node) {
+	//ERR_THREAD_GUARD
+
+	PackedStringArray groups;
+
+	const HashMap<StringName, Node::GroupData> node_groups = p_node->data.grouped;
+	int gs = node_groups.size();
+	groups.resize(gs);
+	int i = 0;
+	for (const KeyValue<StringName, Node::GroupData> &E : node_groups) {
+		groups.set(i, E.key);
+		i++;
+	}
+
+	return groups;
+}

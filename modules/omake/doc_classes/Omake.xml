@@ -77,5 +77,11 @@
 				Returns the CPU ticks in nanoseconds.
 			</description>
 		</method>
+		<method name="get_groups" qualifiers="static">
+			<return type="PackedStringArray" />
+			<param index="0" name="node" type="Node" />
+			<description>
+			</description>
+		</method>
 	</methods>
 </class>
