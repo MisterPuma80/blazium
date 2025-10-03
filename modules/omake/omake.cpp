@@ -89,6 +89,10 @@ Ref<PackedNodePtrArray> Omake::find_by(const Node *p_node, const String &p_patte
 	return OmakeFind::by(p_node, p_pattern, p_type, p_recursive, p_owned);
 }
 
+PackedStringArray Omake::get_groups(const Node *p_node) {
+	return OmakeFind::get_groups(p_node);
+}
+
 void Omake::_bind_methods() {
 	ClassDB::bind_static_method("Omake", D_METHOD("get_cpu_ticks_nsec"), &Omake::get_cpu_ticks_nsec);
 	ClassDB::bind_static_method("Omake", D_METHOD("add_clampedi", "a", "b", "min", "max"), &Omake::add_clampedi, DEFVAL(INT64_MIN), DEFVAL(INT64_MAX));
@@ -101,4 +105,5 @@ void Omake::_bind_methods() {
 	ClassDB::bind_static_method("Omake", D_METHOD("find_by_type", "node", "type_name"), &Omake::find_by_type);
 	ClassDB::bind_static_method("Omake", D_METHOD("find_by_group", "node", "group_name"), &Omake::find_by_group);
 	ClassDB::bind_static_method("Omake", D_METHOD("find_by_groups", "node", "group_names"), &Omake::find_by_groups);
+	ClassDB::bind_static_method("Omake", D_METHOD("get_groups", "node"), &Omake::get_groups);
 }

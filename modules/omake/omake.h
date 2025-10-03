@@ -53,4 +53,5 @@ public:
 	static Ref<PackedNodePtrArray> find_by_type(const Node *p_node, const String &p_type_name);
 	static Ref<PackedNodePtrArray> find_by_group(const Node *p_node, const String &p_group_name);
 	static Ref<PackedNodePtrArray> find_by_groups(const Node *p_node, const TypedArray<String> &p_group_names);
+	static PackedStringArray get_groups(const Node *p_node);
 };
