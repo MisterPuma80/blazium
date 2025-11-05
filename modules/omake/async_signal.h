@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  register_types.cpp                                                    */
+/*  async_signal.h                                                        */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                            BLAZIUM ENGINE                              */
@@ -27,27 +27,46 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "register_types.h"
+#pragma once
 
-#include "async_signal.h"
-#include "core/object/class_db.h"
-#include "omake.h"
-#include "packed_node_ptr_array.h"
+#include "core/object/object.h"
+//#include "core/object/ref_counted.h"
+//#include "core/variant/typed_array.h"
+//#include "core/templates/a_hash_map.cpp"
 
-void initialize_omake_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
-	ClassDB::register_class<Omake>();
-	ClassDB::register_class<PackedNodePtrArray>();
+#include "scene/main/node.h"
 
-	AsyncSignal::initialize_module();
-}
+class AsyncSignal : public Object {
+	GDCLASS(AsyncSignal, Object);
 
-void uninitialize_omake_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
+    static AsyncSignal *singleton;
 
-	AsyncSignal::uninitialize_module();
-}
+private:
+	typedef struct _Subscription {
+		StringName message_type;
+		StringName method_name;
+	} Subscription;
+
+	HashMap<Node *, Vector<Subscription>> _subscriptions;
+
+protected:
+	static void _bind_methods();
+
+public:
+	AsyncSignal();
+	~AsyncSignal();
+
+    static void initialize_module();
+    static void uninitialize_module();
+    static AsyncSignal *get_singleton() { return singleton; }
+
+	void _notification(int p_what);
+
+	void unsubscribe(Node* node);
+
+	void subscribe_to(Node* node, StringName message_type, StringName method_name);
+
+	void send(StringName message_type, Array args);
+
+	void _receive(StringName message_type, Array args);
+};
