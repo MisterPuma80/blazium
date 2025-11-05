@@ -28,9 +28,8 @@
 /**************************************************************************/
 
 #include "async_signal.h"
-#include "scene/main/node.h"
 #include "core/variant/variant_utility.h"
-
+#include "scene/main/node.h"
 
 AsyncSignal *AsyncSignal::singleton = nullptr;
 
@@ -46,7 +45,7 @@ void AsyncSignal::initialize_module() {
 	ClassDB::register_class<AsyncSignal>();
 	singleton = memnew(AsyncSignal);
 	Engine::get_singleton()->add_singleton(Engine::Singleton("AsyncSignal", AsyncSignal::get_singleton()));
-	
+
 	//print_line("AsyncSignal created");
 }
 
@@ -66,7 +65,7 @@ void AsyncSignal::_notification(int p_what) {
 			WARN_PRINT("Warning! Objects not unsubscribed from messages");
 		}
 		for (const KeyValue<Node *, Vector<Subscription>> &E : _subscriptions) {
-			Node* node = E.key;
+			Node *node = E.key;
 			if (node != nullptr && VariantUtilityFunctions::is_instance_valid(node)) {
 				WARN_PRINT(vformat("node name:%s", node->get_name()));
 			}
@@ -74,12 +73,12 @@ void AsyncSignal::_notification(int p_what) {
 	}
 }
 
-void AsyncSignal::unsubscribe(Node* node) {
+void AsyncSignal::unsubscribe(Node *node) {
 	_subscriptions.erase(node);
 }
 
-void AsyncSignal::subscribe_to(Node* node, StringName message_type, StringName method_name) {
-	if (! _subscriptions.has(node)) {
+void AsyncSignal::subscribe_to(Node *node, StringName message_type, StringName method_name) {
+	if (!_subscriptions.has(node)) {
 		_subscriptions[node] = Vector<Subscription>();
 	}
 	Vector<Subscription> &subs = _subscriptions[node];
@@ -99,9 +98,9 @@ void AsyncSignal::send(StringName message_type, Array args) {
 
 void AsyncSignal::_receive(StringName message_type, Array args) {
 	// Find all the node methods to call
-	HashMap<Node*, StringName> to_call;
+	HashMap<Node *, StringName> to_call;
 	for (const KeyValue<Node *, Vector<Subscription>> &E : _subscriptions) {
-		Node* node = E.key;
+		Node *node = E.key;
 		for (const Subscription &sub : E.value) {
 			StringName m_type = sub.message_type;
 			if (m_type == message_type) {
@@ -112,7 +111,7 @@ void AsyncSignal::_receive(StringName message_type, Array args) {
 
 	// Call them
 	for (const KeyValue<Node *, StringName> &E : to_call) {
-		Node* node = E.key;
+		Node *node = E.key;
 		if (node != nullptr && VariantUtilityFunctions::is_instance_valid(node)) {
 			StringName method_name = E.value;
 			node->callv(method_name, args);

@@ -39,7 +39,7 @@
 class AsyncSignal : public Object {
 	GDCLASS(AsyncSignal, Object);
 
-    static AsyncSignal *singleton;
+	static AsyncSignal *singleton;
 
 private:
 	typedef struct _Subscription {
@@ -56,15 +56,15 @@ public:
 	AsyncSignal();
 	~AsyncSignal();
 
-    static void initialize_module();
-    static void uninitialize_module();
-    static AsyncSignal *get_singleton() { return singleton; }
+	static void initialize_module();
+	static void uninitialize_module();
+	static AsyncSignal *get_singleton() { return singleton; }
 
 	void _notification(int p_what);
 
-	void unsubscribe(Node* node);
+	void unsubscribe(Node *node);
 
-	void subscribe_to(Node* node, StringName message_type, StringName method_name);
+	void subscribe_to(Node *node, StringName message_type, StringName method_name);
 
 	void send(StringName message_type, Array args);
 
