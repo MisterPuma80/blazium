@@ -129,6 +129,4 @@ void AsyncSignal::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("subscribe_to", "node", "message_type", "method_name"), &AsyncSignal::subscribe_to);
 	ClassDB::bind_method(D_METHOD("send", "message_type", "args"), &AsyncSignal::send);
 	ClassDB::bind_method(D_METHOD("_receive", "message_type", "args"), &AsyncSignal::_receive);
-
-	ClassDB::bind_static_method("AsyncSignal", D_METHOD("get_singleton"), &AsyncSignal::get_singleton);
 }

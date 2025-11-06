@@ -7,11 +7,6 @@
 	<tutorials>
 	</tutorials>
 	<methods>
-		<method name="get_singleton" qualifiers="static">
-			<return type="AsyncSignal" />
-			<description>
-			</description>
-		</method>
 		<method name="send">
 			<return type="void" />
 			<param index="0" name="message_type" type="StringName" />
