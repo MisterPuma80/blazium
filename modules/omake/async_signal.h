@@ -53,12 +53,13 @@ protected:
 	static void _bind_methods();
 
 public:
+	static AsyncSignal *get_singleton();
+
 	AsyncSignal();
 	~AsyncSignal();
 
 	static void initialize_module();
 	static void uninitialize_module();
-	static AsyncSignal *get_singleton() { return singleton; }
 
 	void _notification(int p_what);
 

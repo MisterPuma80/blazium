@@ -33,6 +33,10 @@
 
 AsyncSignal *AsyncSignal::singleton = nullptr;
 
+AsyncSignal *AsyncSignal::get_singleton() {
+	return singleton;
+}
+
 AsyncSignal::AsyncSignal() {
 }
 
