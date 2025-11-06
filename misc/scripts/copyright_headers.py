@@ -4,16 +4,23 @@
 import os
 import sys
 
-header = """\
+# Header template structure (placeholders will be replaced with centered text)
+header_top = """\
 /**************************************************************************/
 /*  $filename                                                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
-/**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/*  {engine_name}  */
+/*  {engine_url}  */
+/**************************************************************************/"""
+
+# Copyright line templates
+blazium_copyright = "/* Copyright (c) 2024-present Blazium Engine contributors.                */"
+godot_copyright = "/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */"
+juan_ariel_copyright = "/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */"
+
+# License text (common to all)
+license_text = """\
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -36,12 +43,106 @@ header = """\
 /**************************************************************************/
 """
 
+# Parse command line arguments
+use_blazium = "--blazium" in sys.argv
+use_godot = "--godot" in sys.argv
+
+if use_blazium:
+    sys.argv.remove("--blazium")
+if use_godot:
+    sys.argv.remove("--godot")
+
+# Validate arguments
 if len(sys.argv) < 2:
     print("Invalid usage of copyright_headers.py, it should be called with a path to one or multiple files.")
+    print("Usage: python copyright_headers.py [--blazium] [--godot] <file1> [file2] ...")
+    print("  --blazium: Include Blazium Engine contributors copyright")
+    print("  --godot: Include Godot Engine contributors copyright (includes Juan Linietsky, Ariel Manzur)")
+    print("  Both --blazium and --godot: Include all copyright lines")
     sys.exit(1)
+
+if not use_blazium and not use_godot:
+    print("Error: At least one of --blazium or --godot flag must be specified.")
+    print("Usage: python copyright_headers.py [--blazium] [--godot] <file1> [file2] ...")
+    sys.exit(1)
+
+
+# Build the header based on flags
+def build_header():
+    # Determine engine name and URL based on primary flag
+    if use_blazium:
+        engine_name = "BLAZIUM ENGINE"
+        engine_url = "https://blazium.app"
+    else:
+        engine_name = "GODOT ENGINE"
+        engine_url = "https://godotengine.org"
+
+    # Pad engine_name and engine_url to maintain alignment
+    # The line width is 76 chars total: "/*" (2) + "  " (2) + content (68) + "  " (2) + "*/" (2)
+    # Total content area for text = 68 chars (between "/*  " and "  */")
+
+    # Calculate padding for engine_name (centered)
+    engine_name_padding = 68 - len(engine_name)
+    left_padding_name = engine_name_padding // 2
+    right_padding_name = engine_name_padding - left_padding_name
+    engine_name_padded = " " * left_padding_name + engine_name + " " * right_padding_name
+
+    # Calculate padding for engine_url (centered)
+    engine_url_padding = 68 - len(engine_url)
+    left_padding_url = engine_url_padding // 2
+    right_padding_url = engine_url_padding - left_padding_url
+    engine_url_padded = " " * left_padding_url + engine_url + " " * right_padding_url
+
+    # Build header top
+    header = header_top.format(engine_name=engine_name_padded, engine_url=engine_url_padded)
+    header += "\n"
+
+    # Add copyright lines based on flags
+    if use_blazium and use_godot:
+        # Both flags: add all copyright lines
+        header += blazium_copyright + "\n"
+        header += godot_copyright + "\n"
+        header += juan_ariel_copyright + "\n"
+    elif use_blazium:
+        # Only Blazium flag
+        header += blazium_copyright + "\n"
+    elif use_godot:
+        # Only Godot flag
+        header += godot_copyright + "\n"
+        header += juan_ariel_copyright + "\n"
+
+    # Add license text
+    header += license_text
+
+    return header
+
+
+header = build_header()
 
 for f in sys.argv[1:]:
     fname = f
+
+    # Read the file first to check if it has an existing Godot or Blazium header
+    with open(fname.strip(), "r", encoding="utf-8") as fileread:
+        file_content = fileread.read()
+
+    # Check for existing headers
+    has_godot_header = "GODOT ENGINE" in file_content and "https://godotengine.org" in file_content
+    has_blazium_header = "BLAZIUM ENGINE" in file_content and "https://blazium.app" in file_content
+
+    # Skip files that already have the appropriate header
+    if use_blazium and not use_godot:
+        # If only --blazium flag, skip files that already have any header
+        if has_blazium_header or has_godot_header:
+            continue
+    elif use_godot and not use_blazium:
+        # If only --godot flag, skip files that already have Godot header
+        if has_godot_header:
+            continue
+    elif use_blazium and use_godot:
+        # If both flags, skip files that already have Blazium header (which includes all copyrights)
+        if has_blazium_header:
+            continue
 
     # Handle replacing $filename with actual filename and keep alignment
     fsingle = os.path.basename(fname.strip())
@@ -76,8 +177,8 @@ for f in sys.argv[1:]:
         while line.strip() == "" and line != "":  # Skip empty lines at the top
             line = fileread.readline()
 
-        if line.find("/**********") == -1:  # Godot header starts this way
-            # Maybe starting with a non-Godot comment, abort header magic
+        if line.find("/**********") == -1:  # Godot/Blazium header starts this way
+            # Maybe starting with a non-Godot/Blazium comment, abort header magic
             header_done = True
 
         while not header_done:  # Handle header now
