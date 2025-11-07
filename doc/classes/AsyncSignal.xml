@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="AsyncSignal" inherits="Object" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="send">
+			<return type="void" />
+			<param index="0" name="message_type" type="StringName" />
+			<param index="1" name="args" type="Array" />
+			<description>
+			</description>
+		</method>
+		<method name="subscribe_to">
+			<return type="void" />
+			<param index="0" name="node" type="Node" />
+			<param index="1" name="message_type" type="StringName" />
+			<param index="2" name="method_name" type="StringName" />
+			<description>
+			</description>
+		</method>
+		<method name="unsubscribe">
+			<return type="void" />
+			<param index="0" name="node" type="Node" />
+			<description>
+			</description>
+		</method>
+	</methods>
+</class>
