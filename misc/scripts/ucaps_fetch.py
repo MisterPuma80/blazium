@@ -54,10 +54,12 @@ def generate_ucaps_fetch() -> None:
 
     source: str = generate_copyright_header("ucaps.h")
 
-    source += f"""
+    source += """
 #pragma once
 
 // This file was generated using the `misc/scripts/ucaps_fetch.py` script.
+
+#include "core/templates/hash_map.h"
 
 """
 

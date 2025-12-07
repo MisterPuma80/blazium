@@ -32,6 +32,8 @@
 
 // This file was generated using the `misc/scripts/ucaps_fetch.py` script.
 
+#include "core/templates/hash_map.h"
+
 static const HashMap<int, int> caps_table = {
 	{ 0x0061, 0x0041 },
 	{ 0x0062, 0x0042 },
