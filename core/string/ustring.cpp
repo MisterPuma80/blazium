@@ -757,7 +757,7 @@ String String::capitalize() const {
 	for (int i = 0; i < words.get_slice_count(" "); i++) {
 		String slice = words.get_slicec(' ', i);
 		if (slice.length() > 0) {
-			slice[0] = _find_upper(slice[0]);
+			slice[0] = _find_upperXXX(slice[0]);
 			if (i > 0) {
 				ret += " ";
 			}
@@ -3451,7 +3451,7 @@ bool String::_base_is_subsequence_of(const String &p_string, bool case_insensiti
 	for (; *src && *tgt; tgt++) {
 		bool match = false;
 		if (case_insensitive) {
-			char32_t srcc = _find_lower(*src);
+			char32_t srcc = _find_lowerXXX(*src);
 			char32_t tgtc = _find_lower(*tgt);
 			match = srcc == tgtc;
 		} else {

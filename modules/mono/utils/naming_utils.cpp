@@ -88,7 +88,7 @@ const HashMap<String, String> pascal_case_part_overrides = _create_hashmap_from_
 String _get_pascal_case_part_override(String p_part, bool p_input_is_upper = true) {
 	if (!p_input_is_upper) {
 		for (int i = 0; i < p_part.length(); i++) {
-			p_part[i] = _find_upper(p_part[i]);
+			p_part[i] = _find_upperXXX(p_part[i]);
 		}
 	}
 
@@ -171,21 +171,21 @@ String pascal_to_pascal_case(const String &p_identifier) {
 		if (part.length() <= 2 && part.to_upper() == part) {
 			// Acronym of length 1 or 2.
 			for (int j = 0; j < part.length(); j++) {
-				part[j] = _find_upper(part[j]);
+				part[j] = _find_upperXXX(part[j]);
 			}
 			ret += part;
 			continue;
 		}
 
-		part[0] = _find_upper(part[0]);
+		part[0] = _find_upperXXX(part[0]);
 		for (int i = 1; i < part.length(); i++) {
 			if (is_digit(part[i - 1])) {
 				// Use uppercase after digits.
-				part[i] = _find_upper(part[i]);
+				part[i] = _find_upperXXX(part[i]);
 				continue;
 			}
 
-			part[i] = _find_lower(part[i]);
+			part[i] = _find_lowerXXX(part[i]);
 		}
 		ret += part;
 	}
@@ -208,16 +208,16 @@ String snake_to_pascal_case(const String &p_identifier, bool p_input_is_upper) {
 		}
 
 		if (!part.is_empty()) {
-			part[0] = _find_upper(part[0]);
+			part[0] = _find_upperXXX(part[0]);
 			for (int j = 1; j < part.length(); j++) {
 				if (is_digit(part[j - 1])) {
 					// Use uppercase after digits.
-					part[j] = _find_upper(part[j]);
+					part[j] = _find_upperXXX(part[j]);
 					continue;
 				}
 
 				if (p_input_is_upper) {
-					part[j] = _find_lower(part[j]);
+					part[j] = _find_lowerXXX(part[j]);
 				}
 			}
 			ret += part;
@@ -250,7 +250,7 @@ String snake_to_camel_case(const String &p_identifier, bool p_input_is_upper) {
 		if (!part_override.is_empty()) {
 			// Use hardcoded value for part.
 			if (i == 0) {
-				part_override[0] = _find_lower(part_override[0]);
+				part_override[0] = _find_lowerXXX(part_override[0]);
 			}
 			ret += part_override;
 			continue;
@@ -258,19 +258,19 @@ String snake_to_camel_case(const String &p_identifier, bool p_input_is_upper) {
 
 		if (!part.is_empty()) {
 			if (i == 0) {
-				part[0] = _find_lower(part[0]);
+				part[0] = _find_lowerXXX(part[0]);
 			} else {
-				part[0] = _find_upper(part[0]);
+				part[0] = _find_upperXXX(part[0]);
 			}
 			for (int j = 1; j < part.length(); j++) {
 				if (is_digit(part[j - 1])) {
 					// Use uppercase after digits.
-					part[j] = _find_upper(part[j]);
+					part[j] = _find_upperXXX(part[j]);
 					continue;
 				}
 
 				if (p_input_is_upper) {
-					part[j] = _find_lower(part[j]);
+					part[j] = _find_lowerXXX(part[j]);
 				}
 			}
 			ret += part;
