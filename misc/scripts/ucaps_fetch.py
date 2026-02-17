@@ -38,13 +38,16 @@ def parse_unicode_data() -> None:
             upper_to_lower.append((f"0x{code_value}", f"0x{lowercase_mapping}"))
 
 
-def make_cap_table(table_name: str, len_name: str, table: List[Tuple[str, str]]) -> str:
-    result: str = f"static const int {table_name}[{len_name}][2] = {{\n"
+def make_cap_func(func_name: str, table: List[Tuple[str, str]]) -> str:
+    result: str = f"static constexpr int {func_name}(const int ch) {{\n"
+    result += "\tswitch (ch) {\n"
 
     for first, second in table:
-        result += f"\t{{ {first}, {second} }},\n"
+        result += f"\t\tcase {first}: return {second};\n"
 
-    result += "};\n\n"
+    result += "\t}\n"
+    result += "\treturn ch;\n"
+    result += "}\n"
 
     return result
 
@@ -54,57 +57,15 @@ def generate_ucaps_fetch() -> None:
 
     source: str = generate_copyright_header("ucaps.h")
 
-    source += f"""
+    source += """
 #pragma once
 
 // This file was generated using the `misc/scripts/ucaps_fetch.py` script.
 
-#define LTU_LEN {len(lower_to_upper)}
-#define UTL_LEN {len(upper_to_lower)}\n\n"""
-
-    source += make_cap_table("caps_table", "LTU_LEN", lower_to_upper)
-    source += make_cap_table("reverse_caps_table", "UTL_LEN", upper_to_lower)
-
-    source += """static int _find_upper(int ch) {
-\tint low = 0;
-\tint high = LTU_LEN - 1;
-\tint middle;
-
-\twhile (low <= high) {
-\t\tmiddle = (low + high) / 2;
-
-\t\tif (ch < caps_table[middle][0]) {
-\t\t\thigh = middle - 1; // Search low end of array.
-\t\t} else if (caps_table[middle][0] < ch) {
-\t\t\tlow = middle + 1; // Search high end of array.
-\t\t} else {
-\t\t\treturn caps_table[middle][1];
-\t\t}
-\t}
-
-\treturn ch;
-}
-
-static int _find_lower(int ch) {
-\tint low = 0;
-\tint high = UTL_LEN - 1;
-\tint middle;
-
-\twhile (low <= high) {
-\t\tmiddle = (low + high) / 2;
-
-\t\tif (ch < reverse_caps_table[middle][0]) {
-\t\t\thigh = middle - 1; // Search low end of array.
-\t\t} else if (reverse_caps_table[middle][0] < ch) {
-\t\t\tlow = middle + 1; // Search high end of array.
-\t\t} else {
-\t\t\treturn reverse_caps_table[middle][1];
-\t\t}
-\t}
-
-\treturn ch;
-}
 """
+
+    source += make_cap_func("_find_upper", lower_to_upper)
+    source += make_cap_func("_find_lower", upper_to_lower)
 
     ucaps_path: str = os.path.join(os.path.dirname(__file__), "../../core/string/ucaps.h")
     with open(ucaps_path, "w", newline="\n") as f:
