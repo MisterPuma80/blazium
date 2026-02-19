@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 # Script used to dump case mappings from
-# the Unicode Character Database to the `ucaps.h` file.
+# the Unicode Character Database to the `ucaps_tables.h` file.
 # NOTE: This script is deliberately not integrated into the build system;
 # you should run it manually whenever you want to update the data.
 
 import os
 import sys
+from ctypes import c_uint32
 from typing import Final, List, Tuple
 from urllib.request import urlopen
 
@@ -38,79 +39,90 @@ def parse_unicode_data() -> None:
             upper_to_lower.append((f"0x{code_value}", f"0x{lowercase_mapping}"))
 
 
-def make_cap_table(table_name: str, len_name: str, table: List[Tuple[str, str]]) -> str:
-    result: str = f"static const int {table_name}[{len_name}][2] = {{\n"
+class IntEntry:
+    key: c_uint32 = c_uint32(0xFFFFFFFF)
+    value: c_uint32 = c_uint32(0)
 
-    for first, second in table:
-        result += f"\t{{ {first}, {second} }},\n"
+    def __init__(self, key: c_uint32, value: c_uint32):
+        self.key = key
+        self.value = value
 
-    result += "};\n\n"
 
-    return result
+class IntHashTableMaker:
+    data: List[IntEntry] = []
+    capacity: int = 0
+
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+
+    def make(self, in_data: List[Tuple[str, str]]):
+        self.data.clear()
+        for i in range(self.capacity):
+            self.data.append(IntEntry(c_uint32(0xFFFFFFFF), c_uint32(0)))
+
+        for first, second in in_data:
+            self.insert(c_uint32(int(first, 16)), c_uint32(int(second, 16)))
+
+    def _hash(self, key: c_uint32) -> int:
+        return (key.value ^ (key.value >> 16)) % self.capacity
+
+    def insert(self, key: c_uint32, value: c_uint32) -> bool:
+        idx: int = self._hash(key)
+        for i in range(self.capacity):
+            current: int = (idx + i) % self.capacity
+            if self.data[current].key.value == 0xFFFFFFFF or self.data[current].key.value == key.value:
+                self.data[current] = IntEntry(key, value)
+                return True
+
+        return False
 
 
 def generate_ucaps_fetch() -> None:
     parse_unicode_data()
 
-    source: str = generate_copyright_header("ucaps.h")
+    source: str = generate_copyright_header("ucaps_tables.h")
 
-    source += f"""
+    source += """
 #pragma once
 
 // This file was generated using the `misc/scripts/ucaps_fetch.py` script.
 
-#define LTU_LEN {len(lower_to_upper)}
-#define UTL_LEN {len(upper_to_lower)}\n\n"""
-
-    source += make_cap_table("caps_table", "LTU_LEN", lower_to_upper)
-    source += make_cap_table("reverse_caps_table", "UTL_LEN", upper_to_lower)
-
-    source += """static int _find_upper(int ch) {
-\tint low = 0;
-\tint high = LTU_LEN - 1;
-\tint middle;
-
-\twhile (low <= high) {
-\t\tmiddle = (low + high) / 2;
-
-\t\tif (ch < caps_table[middle][0]) {
-\t\t\thigh = middle - 1; // Search low end of array.
-\t\t} else if (caps_table[middle][0] < ch) {
-\t\t\tlow = middle + 1; // Search high end of array.
-\t\t} else {
-\t\t\treturn caps_table[middle][1];
-\t\t}
-\t}
-
-\treturn ch;
-}
-
-static int _find_lower(int ch) {
-\tint low = 0;
-\tint high = UTL_LEN - 1;
-\tint middle;
-
-\twhile (low <= high) {
-\t\tmiddle = (low + high) / 2;
-
-\t\tif (ch < reverse_caps_table[middle][0]) {
-\t\t\thigh = middle - 1; // Search low end of array.
-\t\t} else if (reverse_caps_table[middle][0] < ch) {
-\t\t\tlow = middle + 1; // Search high end of array.
-\t\t} else {
-\t\t\treturn reverse_caps_table[middle][1];
-\t\t}
-\t}
-
-\treturn ch;
-}
 """
 
-    ucaps_path: str = os.path.join(os.path.dirname(__file__), "../../core/string/ucaps.h")
+    # Set hash table capacity as 2x data size rounded up to power of 2
+    capacity: int = 4096
+    source += f"static const int UCAPS_TABLES_CAPACITY = {capacity};\n\n"
+
+    source += """
+struct Entry {
+\tuint32_t key = 0xFFFFFFFF;
+\tuint32_t value = 0;
+};
+
+"""
+
+    # Make reverse_caps_table
+    reverse_caps_table_maker = IntHashTableMaker(capacity)
+    reverse_caps_table_maker.make(upper_to_lower)
+    source += "static const Entry reverse_caps_table[UCAPS_TABLES_CAPACITY] = {\n"
+    for entry in reverse_caps_table_maker.data:
+        source += f"\t{{ {entry.key.value:#X}, {entry.value.value:#X} }},\n"
+    source += "};\n\n"
+
+    # Make caps_table
+    caps_table_maker = IntHashTableMaker(capacity)
+    caps_table_maker.make(lower_to_upper)
+    source += "static const Entry caps_table[UCAPS_TABLES_CAPACITY] = {\n"
+    for entry in caps_table_maker.data:
+        source += f"\t{{ {entry.key.value:#X}, {entry.value.value:#X} }},\n"
+    source += "};\n\n"
+
+    # Write to file
+    ucaps_path: str = os.path.join(os.path.dirname(__file__), "../../core/string/ucaps_tables.h")
     with open(ucaps_path, "w", newline="\n") as f:
         f.write(source)
 
-    print("`ucaps.h` generated successfully.")
+    print("`ucaps_tables.h` generated successfully.")
 
 
 if __name__ == "__main__":
